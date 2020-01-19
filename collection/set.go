@@ -11,16 +11,52 @@ type Set struct {
 }
 
 // 新建 Set 集合
-func NewSet(items ...interface{}) *Set {
+func NewSet(i ...interface{}) *Set {
 	set := &Set{
 		items: make(map[interface{}]struct{}, 10),
 	}
 
-	for _, item := range items {
+	for _, item := range i {
 		set.items[item] = struct{}{}
 	}
 
 	return set
+}
+
+// 浅拷贝
+func Copy(s *Set) *Set {
+	return NewSet(s.List())
+}
+
+// 差集
+func Diff(s1, s2 *Set) *Set {
+	if s1 == nil && s2 == nil {
+		return nil
+	}
+
+	if s1 == nil {
+		return Copy(s1)
+	}
+
+	if s2 == nil {
+		return Copy(s1)
+	}
+
+	var newList []interface{}
+
+	for key := range s1.items {
+		if !s2.All(key) {
+			newList = append(newList, key)
+		}
+	}
+
+	for key := range s2.items {
+		if !s1.All(key) {
+			newList = append(newList, key)
+		}
+	}
+
+	return NewSet(newList...)
 }
 
 // Add will add the provided items to the set.
